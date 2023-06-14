@@ -1,16 +1,65 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from detect import detect_text, new_screen
+from requests import post
+import datetime
+import time
+import os
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def run_api(value):
+    url = "http://192/api/states/input_number.tempv" #
+    headers = {
+        "Authorization": "", #
+        "content-type": "application/json",
+    }
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    data = {"state": value, "attributes": {"unit_of_measurement": "kWh"}}
+
+    response = post(url, headers=headers, json=data)
+    print("New value send Home Assistant")
+    # print(response.text)
+
+
+check_value = '06:00:00'
+
+while True:
+    x = datetime.datetime.now()
+    date_now = x.strftime("%H:%M:%S")
+
+    if date_now == check_value:
+        print("Now run detect value")
+
+        new_screen()
+        value = detect_text('images/cc.png')
+        run_api(value)
+
+        time.sleep(5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
