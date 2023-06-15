@@ -1,0 +1,5 @@
+*.log
+images/
+__pycache__/
+practical-robot-381309-1d818c812f41.json
+temp
