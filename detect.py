@@ -2,23 +2,26 @@ import os
 import io
 import cv2
 from google.cloud import vision
+from config import *
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types
+import pandas as pd
+from logger import logger
 
 
 def new_screen():
-
-    cap = cv2.VideoCapture('rtsp://') #
+    # cap = cv2.VideoCapture(0) #default camera
+    cap = cv2.VideoCapture(RTSP_CONN)  # IP Camera
 
     ret, frame = cap.read()
     croop = frame[80:280, 150:330]
-
-    cv2.imwrite("images/cc.png", croop)
+    # [start_row:end_row, start_col:end_col]
+    # frame = cv2.resize(frame, (960, 540))
+    cv2.imwrite("images/capture.png", frame)
 
 
 def detect_text(path):
     """Detects text in the file."""
-
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './practical-robot-381309-1d818c812f41.json'
     client = vision.ImageAnnotatorClient()
 
@@ -30,14 +33,13 @@ def detect_text(path):
     response = client.text_detection(image=image)
     texts = response.text_annotations
 
-    print(int(texts[0].description))
+    logger.info(int(texts[0].description))
 
     if response.error.message:
-        raise Exception(
-            '{}\nFor more info on error messages, check: ' 'https://cloud.google.com/apis/design/errors'.format(
-                response.error.message))
+        logger.error("")
+        if response.error.message:
+            raise Exception(logger.error(
+                "For more info on error messages, check: ' 'https://cloud.google.com/apis/design/errors'".format(
+                    response.error.message)))
 
     return int(texts[0].description)
-
-
-

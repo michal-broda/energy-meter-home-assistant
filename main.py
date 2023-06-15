@@ -2,64 +2,31 @@ from detect import detect_text, new_screen
 from requests import post
 import datetime
 import time
-import os
+from logger import logger
+from config import *
 
 
 def run_api(value):
-    url = "http://192/api/states/input_number.tempv" #
     headers = {
-        "Authorization": "", #
+        "Authorization": AUTHORIZATION,
         "content-type": "application/json",
     }
 
     data = {"state": value, "attributes": {"unit_of_measurement": "kWh"}}
 
-    response = post(url, headers=headers, json=data)
-    print("New value send Home Assistant")
-    # print(response.text)
+    response = post(BASE_URL, headers=headers, json=data)
+    logger.info("New value send Home Assistant")
 
-
-check_value = '06:00:00'
 
 while True:
-    x = datetime.datetime.now()
-    date_now = x.strftime("%H:%M:%S")
+    date_now = datetime.datetime.now().strftime("%H:%M:%S")
+    # logger.info(date_now)
 
-    if date_now == check_value:
-        print("Now run detect value")
-
+    if date_now == HOUR:
+        logger.info("Now run detect value")
         new_screen()
-        value = detect_text('images/cc.png')
+        value = detect_text('images/capture.png')
+        logger.info(value)
         run_api(value)
 
         time.sleep(5)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
