@@ -14,11 +14,15 @@ def new_screen():
     cap = cv2.VideoCapture(RTSP_CONN)  # IP Camera
 
     ret, frame = cap.read()
-    croop = frame[80:280, 150:330]
-    # [start_row:end_row, start_col:end_col]
-    # frame = cv2.resize(frame, (960, 540))
     cv2.imwrite("images/capture.png", frame)
+    croop = frame[620:709, 685:935] # [start_row:end_row, start_col:end_col]
+    rotate = cv2.rotate(croop, cv2.ROTATE_180)
 
+    cv2.imwrite("images/capturee.png", rotate)
+
+
+
+new_screen()
 
 def detect_text(path):
     """Detects text in the file."""
@@ -43,3 +47,5 @@ def detect_text(path):
                     response.error.message)))
 
     return int(texts[0].description)
+
+detect_text("images/capturee.png")
