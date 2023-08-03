@@ -5,28 +5,27 @@ from google.cloud import vision
 from config import *
 from google.cloud import vision_v1
 from google.cloud.vision_v1 import types
-import pandas as pd
 from logger import logger
+import time
 
 
 def new_screen():
     # cap = cv2.VideoCapture(0) #default camera
     cap = cv2.VideoCapture(RTSP_CONN)  # IP Camera
-
+    time.sleep(10)
     ret, frame = cap.read()
-    cv2.imwrite("images/capture.png", frame)
-    croop = frame[620:709, 685:935] # [start_row:end_row, start_col:end_col]
+    cv2.imwrite("images/test1.png", frame)
+    #croop = frame[650:739, 685:935] # [start_row:end_row, start_col:end_col]
+    #croop = frame[470:600, 470:1075]  # [start_row:end_row, start_col:end_col]
+    croop = frame[640:810, 460:1100]  # [start_row:end_row, start_col:end_col]
     rotate = cv2.rotate(croop, cv2.ROTATE_180)
 
-    cv2.imwrite("images/capturee.png", rotate)
+    cv2.imwrite("images/test2.png", rotate)
 
-
-
-new_screen()
 
 def detect_text(path):
     """Detects text in the file."""
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './practical-robot-381309-1d818c812f41.json'
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './practical-robot-381309-8ef5504be52d.json'
     client = vision.ImageAnnotatorClient()
 
     with io.open(path, 'rb') as image_file:
@@ -34,18 +33,32 @@ def detect_text(path):
 
     image = vision.Image(content=content)
 
-    response = client.text_detection(image=image)
+    text_detection_params = vision.TextDetectionParams(enable_text_detection_confidence_score=True)
+    image_context = vision.ImageContext(text_detection_params=text_detection_params)
+    response = client.text_detection(image=image, image_context=image_context)
+
     texts = response.text_annotations
 
-    logger.info(int(texts[0].description))
+    for page in response.full_text_annotation.pages:
+        for block in page.blocks:
+            for paragraph in block.paragraphs:
+                for word in paragraph.words:
+                    words = ''.join([
+                        symbol.text for symbol in word.symbols
+                    ])
+                    print('Words: {} (confidence: {})'.format(
+                        words, word.confidence))
 
     if response.error.message:
-        logger.error("")
-        if response.error.message:
-            raise Exception(logger.error(
-                "For more info on error messages, check: ' 'https://cloud.google.com/apis/design/errors'".format(
-                    response.error.message)))
+        raise Exception(
+            '{}\nFor more info on error messages, check: '
+            'https://cloud.google.com/apis/design/errors'.format(
+                response.error.message))
 
-    return int(texts[0].description)
+    # print(texts[0].description)
+    if word.confidence > 0.80:
+        return int(texts[0].description)
+    else:
+        logger.error("Confidence is not high")
+        pass
 
-detect_text("images/capturee.png")
