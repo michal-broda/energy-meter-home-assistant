@@ -12,12 +12,9 @@ import time
 def new_screen():
     # cap = cv2.VideoCapture(0) #default camera
     cap = cv2.VideoCapture(RTSP_CONN)  # IP Camera
-    time.sleep(10)
     ret, frame = cap.read()
     cv2.imwrite("images/test1.png", frame)
-    #croop = frame[650:739, 685:935] # [start_row:end_row, start_col:end_col]
-    #croop = frame[470:600, 470:1075]  # [start_row:end_row, start_col:end_col]
-    croop = frame[640:810, 460:1100]  # [start_row:end_row, start_col:end_col]
+    croop = frame[630:810, 360:980]  # [start_row:end_row, start_col:end_col]
     rotate = cv2.rotate(croop, cv2.ROTATE_180)
 
     cv2.imwrite("images/test2.png", rotate)
@@ -36,6 +33,7 @@ def detect_text(path):
     text_detection_params = vision.TextDetectionParams(enable_text_detection_confidence_score=True)
     image_context = vision.ImageContext(text_detection_params=text_detection_params)
     response = client.text_detection(image=image, image_context=image_context)
+    print("ressss", response)
 
     texts = response.text_annotations
 
@@ -56,9 +54,10 @@ def detect_text(path):
                 response.error.message))
 
     # print(texts[0].description)
-    if word.confidence > 0.80:
-        return int(texts[0].description)
+    if response and word.confidence > 0.80:
+        return float(texts[0].description)
     else:
         logger.error("Confidence is not high")
-        pass
+        return False
+
 
