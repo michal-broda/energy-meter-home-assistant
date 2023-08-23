@@ -12,7 +12,7 @@ def check():
         "content-type": "application/json",
     }
 
-    response = get("http://192.168.12.110:8079/api/states/input_number.summary_water", headers=headers)
+    response = get("", headers=headers)
     print(response.text)
     old_value = float(response.text[51:56])
     print(old_value)
